@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express();
-const port = 3000;
 const mysql = require("mysql2");
 const cors = require("cors");
 
@@ -9,6 +8,7 @@ const host = process.env.HOST;
 const user = process.env.USER;
 const password = process.env.PASSWORD;
 const database = process.env.DATABASE;
+const port = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
@@ -17,7 +17,12 @@ const db = mysql.createPool({
   host: host,
   user: user,
   password: password,
+  port: port,
   database: database,
+});
+
+app.get("/", (req, res) => {
+  res.send(`Servidor Funcionando na URL da solicitação: ${req.protocol}://${req.get("host")}${req.originalUrl}`);
 });
 
 app.get("/getNotes", (req, res) => {
@@ -50,7 +55,7 @@ app.put("/edit", (req, res) => {
   const { title } = req.body;
   const { content } = req.body;
 
-  let SQL = "UPDATE kepper SET title = ?, content = ? WHERE idkepper = ?";
+  let SQL = "UPDATE kepper SET title = ?, content = ? WHERE id = ?";
   db.query(SQL, [title, content, id], (err, result) => {
     if (err) {
       console.log(err);
@@ -63,7 +68,7 @@ app.put("/edit", (req, res) => {
 app.delete("/delete/:id", (req, res) => {
   const { id } = req.params;
 
-  let SQL = "DELETE FROM kepper WHERE idkepper = ?";
+  let SQL = "DELETE FROM kepper WHERE id = ?";
   db.query(SQL, [id], (err, result) => {
     if (err) {
       console.log(err);
@@ -73,6 +78,6 @@ app.delete("/delete/:id", (req, res) => {
   });
 });
 
-app.listen(process.env.PORT || port, () => {
-  console.log(`Example app listening on port ${port}!`);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Example app listening on port ${process.env.PORT}! ou 3000`);
 });
